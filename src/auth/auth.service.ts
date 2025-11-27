@@ -26,7 +26,7 @@ export class AuthService {
     private mailService: MailService,
     @InjectModel(EmailVerification.name)
     private emailVerificationModel: Model<EmailVerification>,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto) {
     // Check if user already exists
@@ -57,13 +57,28 @@ export class AuthService {
       type: 'signup',
     });
 
-    await this.mailService.sendVerificationEmail(user.email, verificationToken);
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    await this.emailVerificationModel.create({
+      user: user.id,
+      token: code,
+      email: user.email,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      type: 'otp',
+    });
+
+    const activationLink = `${this.configService.get('FRONTEND_URL')}/activate-account?token=${verificationToken}`;
+    try {
+      await this.mailService.sendVerificationEmail(user.email, verificationToken, code);
+    } catch (e) {
+      console.error('Email send failed:', (e as Error)?.message);
+    }
 
     const { password, ...result } = user.toObject();
     return {
       user: result,
       message:
         'Registration successful. Please check your email for verification.',
+      activationLink,
     };
   }
 
@@ -189,6 +204,44 @@ export class AuthService {
     }
   }
 
+  async verifyEmailCode(code: string) {
+    if (!code || code.length !== 6) {
+      throw new BadRequestException('Invalid verification code');
+    }
+    const record = await this.emailVerificationModel.findOne({ token: code, type: 'otp' });
+    if (!record || record.isUsed || record.expiresAt.getTime() < Date.now()) {
+      throw new BadRequestException('Invalid or expired verification code');
+    }
+
+    await this.usersService.verifyEmail(String(record.user));
+    record.isUsed = true;
+    record.usedAt = new Date();
+    await record.save();
+
+    return { message: 'Email verified successfully' };
+  }
+
+  async resendVerification(token: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+      const user = await this.usersService.findById(payload.sub);
+      if (!user) throw new BadRequestException('Invalid token');
+
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      await this.emailVerificationModel.create({
+        user: user.id,
+        token: code,
+        email: user.email,
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        type: 'otp',
+      });
+      await this.mailService.sendVerificationEmail(user.email, token, code);
+      return { message: 'Verification email resent' };
+    } catch (e) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+  }
+
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     try {
       const payload = this.jwtService.verify(resetPasswordDto.token);
@@ -213,9 +266,9 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const { password, refreshToken, passwordResetToken, ...result } =
+    const { password, refreshToken, passwordResetToken, _id, ...rest } =
       user.toObject();
-    return result;
+    return { id: _id?.toString?.() ?? String(_id), ...rest };
   }
 
   async getAdminStats() {

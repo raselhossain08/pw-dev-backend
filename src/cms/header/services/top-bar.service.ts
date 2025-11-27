@@ -11,7 +11,7 @@ export class TopBarService {
     @InjectModel(TopBar.name)
     private topBarModel: Model<TopBarDocument>,
     private cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   async create(createDto: CreateTopBarDto): Promise<TopBar> {
     const created = new this.topBarModel(createDto);
@@ -20,7 +20,7 @@ export class TopBarService {
 
   async findAll(): Promise<TopBar[]> {
     const docs = await this.topBarModel.find().sort({ createdAt: -1 }).exec();
-    return docs.map(doc => doc.toJSON());
+    return docs.map((doc) => doc.toJSON());
   }
 
   async findActive(): Promise<TopBar> {

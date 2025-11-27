@@ -28,7 +28,7 @@ import { UserRole } from '../users/entities/user.entity';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -113,5 +113,22 @@ export class AuthController {
     @Body('token') bodyToken?: string,
   ) {
     return this.authService.verifyEmailToken(String(token || bodyToken || ''));
+  }
+
+  @Post('verify-email-code')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify email with 6-digit code' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired code' })
+  async verifyEmailCode(@Body('code') code: string) {
+    return this.authService.verifyEmailCode(String(code || ''));
+  }
+
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend email verification using token' })
+  @ApiResponse({ status: 200, description: 'Verification email resent' })
+  async resendVerification(@Body('token') token?: string, @Query('token') queryToken?: string) {
+    return this.authService.resendVerification(String(token || queryToken || ''));
   }
 }

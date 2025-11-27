@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -95,12 +95,6 @@ async function bootstrap() {
     }),
   );
 
-  // Versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
-
   // Global prefix
   const apiPrefix = configService.get('API_PREFIX', 'api');
   app.setGlobalPrefix(apiPrefix);
@@ -170,12 +164,26 @@ async function bootstrap() {
 
   const expressApp = app.getHttpAdapter().getInstance();
 
+  // Simple in-memory cache for public config endpoints
+  const cache: Record<string, { ts: number; data: any }> = {};
+  const cacheTTL = 30 * 1000; // 30 seconds
+
   expressApp.get(
     `/${apiPrefix}/public/config/nav-menu`,
     async (req: any, res: any) => {
       try {
-        const raw = await systemConfigService.getValue('NAV_MENU', '[]');
+        const key = 'NAV_MENU';
+        const now = Date.now();
+        if (cache[key] && now - cache[key].ts < cacheTTL) {
+          return res.json({
+            success: true,
+            message: 'OK',
+            data: cache[key].data,
+          });
+        }
+        const raw = await systemConfigService.getValue(key, '[]');
         const data = typeof raw === 'string' ? JSON.parse(raw) : raw || [];
+        cache[key] = { ts: now, data };
         res.json({ success: true, message: 'OK', data });
       } catch (e) {
         res.json({ success: true, message: 'OK', data: [] });
@@ -187,6 +195,15 @@ async function bootstrap() {
     `/${apiPrefix}/public/config/header`,
     async (req: any, res: any) => {
       try {
+        const now = Date.now();
+        const key = 'HEADER_FULL';
+        if (cache[key] && now - cache[key].ts < cacheTTL) {
+          return res.json({
+            success: true,
+            message: 'OK',
+            data: cache[key].data,
+          });
+        }
         const logo = await systemConfigService.getValue(
           'HEADER_LOGO',
           null as any,
@@ -215,6 +232,7 @@ async function bootstrap() {
           topBar:
             typeof topBar === 'string' ? JSON.parse(topBar) : topBar || {},
         };
+        cache[key] = { ts: now, data: parsed };
         res.json({ success: true, message: 'OK', data: parsed });
       } catch (e) {
         res.json({
@@ -235,8 +253,18 @@ async function bootstrap() {
     `/${apiPrefix}/public/content/faqs`,
     async (req: any, res: any) => {
       try {
-        const faqs = await systemConfigService.getValue('FAQ_CONTENT', '{}');
+        const key = 'FAQ_CONTENT';
+        const now = Date.now();
+        if (cache[key] && now - cache[key].ts < cacheTTL) {
+          return res.json({
+            success: true,
+            message: 'OK',
+            data: cache[key].data,
+          });
+        }
+        const faqs = await systemConfigService.getValue(key, '{}');
         const data = typeof faqs === 'string' ? JSON.parse(faqs) : faqs || {};
+        cache[key] = { ts: now, data };
         res.json({ success: true, message: 'OK', data });
       } catch (e) {
         res.json({

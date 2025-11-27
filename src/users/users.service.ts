@@ -13,7 +13,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if user already exists
@@ -33,7 +33,7 @@ export class UsersService {
     limit: number = 10,
     search?: string,
     role?: UserRole,
-  ): Promise<{ users: User[]; total: number }> {
+  ): Promise<{ users: any[]; total: number }> {
     const skip = (page - 1) * limit;
     const query: any = {};
 
@@ -56,6 +56,7 @@ export class UsersService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
+        .lean()
         .exec(),
       this.userModel.countDocuments(query),
     ]);
@@ -197,10 +198,11 @@ export class UsersService {
     };
   }
 
-  async getInstructors(): Promise<User[]> {
+  async getInstructors(): Promise<any[]> {
     return await this.userModel
       .find({ role: UserRole.INSTRUCTOR, status: UserStatus.ACTIVE })
       .select('-password -refreshToken -passwordResetToken')
+      .lean()
       .exec();
   }
 

@@ -9,4 +9,4 @@ import { CloudinaryService } from './services/cloudinary.service';
   providers: [CloudinaryService],
   exports: [HeaderModule, FooterModule, CloudinaryService],
 })
-export class CmsModule { }
+export class CmsModule {}

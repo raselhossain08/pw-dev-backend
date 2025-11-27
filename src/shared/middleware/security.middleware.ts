@@ -29,11 +29,36 @@ export class SecurityMiddleware implements NestMiddleware {
     try {
       const nodeEnv = process.env.NODE_ENV || 'development';
       const isDevLocal =
-        nodeEnv === 'development' && (clientIp === '::1' || clientIp === '127.0.0.1');
-      const isDocsOrFavicon = req.path?.startsWith('/api/docs') || req.path === '/favicon.ico';
+        nodeEnv === 'development' &&
+        (
+          clientIp === '127.0.0.1' ||
+          clientIp === '::1' ||
+          clientIp === '::ffff:127.0.0.1' ||
+          clientIp.startsWith('192.168.') ||
+          clientIp.startsWith('10.') ||
+          clientIp.startsWith('172.16.') ||
+          clientIp.startsWith('172.17.') ||
+          clientIp.startsWith('172.18.') ||
+          clientIp.startsWith('172.19.') ||
+          clientIp.startsWith('172.20.') ||
+          clientIp.startsWith('172.21.') ||
+          clientIp.startsWith('172.22.') ||
+          clientIp.startsWith('172.23.') ||
+          clientIp.startsWith('172.24.') ||
+          clientIp.startsWith('172.25.') ||
+          clientIp.startsWith('172.26.') ||
+          clientIp.startsWith('172.27.') ||
+          clientIp.startsWith('172.28.') ||
+          clientIp.startsWith('172.29.') ||
+          clientIp.startsWith('172.30.') ||
+          clientIp.startsWith('172.31.')
+        );
+      const isDocsOrFavicon =
+        req.path?.startsWith('/api/docs') || req.path === '/favicon.ico';
       const isPublicPath = req.path?.startsWith('/api/public/');
       const isCmsActiveGet =
-        req.method === 'GET' && /^\/api\/cms\/[^/]+\/active$/.test(req.path || '');
+        req.method === 'GET' &&
+        /^\/api\/cms\/[^/]+\/active$/.test(req.path || '');
 
       if (isDocsOrFavicon || isPublicPath || isCmsActiveGet || isDevLocal) {
         this.addSecurityHeaders(res);
@@ -63,7 +88,7 @@ export class SecurityMiddleware implements NestMiddleware {
     } catch (error) {
       console.error(
         `[SECURITY ALERT] IP: ${clientIp}, Path: ${req.path}`,
-        (error as any)?.message,
+        error?.message,
       );
       this.handleSecurityViolation(clientIp);
       throw error;
@@ -71,12 +96,15 @@ export class SecurityMiddleware implements NestMiddleware {
   }
 
   private getClientIP(req: Request): string {
-    return (
+    const ipRaw =
       (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
       (req.headers['x-real-ip'] as string) ||
       req.socket.remoteAddress ||
-      'unknown'
-    );
+      'unknown';
+    if (!ipRaw) return 'unknown';
+    if (ipRaw === '::1') return '127.0.0.1';
+    if (ipRaw.startsWith('::ffff:')) return ipRaw.replace('::ffff:', '');
+    return ipRaw;
   }
 
   private enforceRateLimit(ip: string) {
@@ -279,6 +307,17 @@ export class SecurityMiddleware implements NestMiddleware {
     const violations = this.requestCounts.get(ip)?.count || 0;
 
     // Block IP after 5 violations
+    const nodeEnv = process.env.NODE_ENV || 'development';
+    const isLocal =
+      ip === '127.0.0.1' ||
+      ip === '::1' ||
+      ip === '::ffff:127.0.0.1' ||
+      ip.startsWith('192.168.') ||
+      ip.startsWith('10.') ||
+      (ip.startsWith('172.') && parseInt(ip.split('.')[1] || '0', 10) >= 16);
+    if (nodeEnv === 'development' && isLocal) {
+      return;
+    }
     if (violations >= 5) {
       this.blockedIPs.add(ip);
       console.error(`[IP BLOCKED] ${ip} - Multiple security violations`);

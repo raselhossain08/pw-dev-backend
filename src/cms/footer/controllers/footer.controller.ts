@@ -14,7 +14,12 @@ import {
   VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { CreateFooterDto, UpdateFooterDto } from '../dto/footer.dto';
 import { FooterService } from '../services/footer.service';
 import { CloudinaryService } from '../../services/cloudinary.service';
@@ -25,11 +30,14 @@ export class FooterController {
   constructor(
     private footerService: FooterService,
     private cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   @Get('active')
   @ApiOperation({ summary: 'Get active footer configuration (Public)' })
-  @ApiResponse({ status: 200, description: 'Active footer returned successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Active footer returned successfully',
+  })
   async findActive() {
     const footer = await this.footerService.findActive();
     return {
@@ -46,7 +54,10 @@ export class FooterController {
 
   @Get()
   @ApiOperation({ summary: 'Get all footer configurations (Admin)' })
-  @ApiResponse({ status: 200, description: 'Footer list returned successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Footer list returned successfully',
+  })
   async findAll() {
     const footers = await this.footerService.findAll();
     return {
@@ -161,7 +172,8 @@ export class FooterController {
   async replaceLogo(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body() dto: { alt?: string; width?: number; height?: number; src?: string },
+    @Body()
+    dto: { alt?: string; width?: number; height?: number; src?: string },
   ) {
     const upload = await this.cloudinaryService.uploadImage(file, 'cms/footer');
     const footer = await this.footerService.update(id, {

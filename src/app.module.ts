@@ -4,11 +4,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import * as path from 'path';
 
 // Core Modules
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CoursesModule } from './courses/courses.module';
+import { CourseCategoriesModule } from './course-categories/course-categories.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -103,26 +106,38 @@ import { AiBotGateway } from './ai-bot/ai-bot.gateway';
     // Email
     MailerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        transport: {
-          host: configService.get('SMTP_HOST'),
-          port: configService.get('SMTP_PORT'),
-          secure: false,
-          auth: {
-            user: configService.get('SMTP_USER'),
-            pass: configService.get('SMTP_PASS'),
+      useFactory: (configService: ConfigService) => {
+        const host = configService.get<string>('SMTP_HOST');
+        const port = Number(configService.get<string>('SMTP_PORT')) || 2525;
+        const user =
+          configService.get<string>('SMTP_USER') ||
+          configService.get<string>('MAILTRAP_USERNAME');
+        const pass =
+          configService.get<string>('SMTP_PASS') ||
+          configService.get<string>('MAILTRAP_PASSWORD');
+
+        return {
+          transport: {
+            service: host?.includes('gmail') ? 'gmail' : undefined,
+            host,
+            port,
+            secure: false,
+            requireTLS: true,
+            auth: user && pass ? { user, pass } : undefined,
+            tls: { rejectUnauthorized: false },
           },
-        },
-        defaults: {
-          from: `"${configService.get('FROM_NAME')}" <${configService.get('FROM_EMAIL')}>`,
-        },
-        template: {
-          dir: __dirname + '/templates',
-          options: {
-            strict: true,
+          defaults: {
+            from: `"${configService.get('FROM_NAME')}" <${configService.get('FROM_EMAIL')}>`,
           },
-        },
-      }),
+          template: {
+            dir: path.resolve(process.cwd(), 'src', 'templates'),
+            adapter: new HandlebarsAdapter(),
+            options: {
+              strict: true,
+            },
+          },
+        };
+      },
       inject: [ConfigService],
     }),
 
@@ -136,6 +151,7 @@ import { AiBotGateway } from './ai-bot/ai-bot.gateway';
     AuthModule,
     UsersModule,
     CoursesModule,
+    CourseCategoriesModule,
     ProductsModule,
     NotificationsModule,
     UploadsModule,
@@ -183,4 +199,4 @@ import { AiBotGateway } from './ai-bot/ai-bot.gateway';
     AiBotGateway,
   ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -19,7 +19,7 @@ export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
-  ) {}
+  ) { }
 
   async create(
     createCourseDto: CreateCourseDto,
@@ -32,8 +32,10 @@ export class CoursesService {
       throw new ConflictException('Course with this slug already exists');
     }
 
+    const duration = (createCourseDto as any).duration ?? createCourseDto.durationHours;
     const course = new this.courseModel({
       ...createCourseDto,
+      duration,
       instructor: new Types.ObjectId(instructorId),
     });
 
@@ -78,11 +80,24 @@ export class CoursesService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
+        .lean()
         .exec(),
       this.courseModel.countDocuments(query),
     ]);
 
-    return { courses, total };
+    // Convert _id to id for each course
+    const serializedCourses = courses.map((course: any) => ({
+      ...course,
+      id: course._id.toString(),
+      _id: course._id.toString(),
+      instructor: course.instructor ? {
+        ...course.instructor,
+        id: course.instructor._id.toString(),
+        _id: course.instructor._id.toString(),
+      } : null,
+    }));
+
+    return { courses: serializedCourses, total };
   }
 
   async findById(id: string): Promise<Course> {
@@ -304,6 +319,74 @@ export class CoursesService {
     return updatedLesson;
   }
 
+  async deleteLesson(
+    lessonId: string,
+    userId: string,
+    userRole: UserRole,
+  ): Promise<void> {
+    const lesson = await this.lessonModel.findById(lessonId).populate('course');
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
+    }
+
+    const course = lesson.course as Course;
+
+    if (
+      userRole !== UserRole.ADMIN &&
+      userRole !== UserRole.SUPER_ADMIN &&
+      course.instructor.toString() !== userId
+    ) {
+      throw new ForbiddenException(
+        'You can only delete lessons in your own courses',
+      );
+    }
+
+    const result = await this.lessonModel.findByIdAndDelete(lessonId);
+    if (!result) {
+      throw new NotFoundException('Lesson not found');
+    }
+  }
+
+  async reorderLessons(
+    courseId: string,
+    lessonIds: string[],
+    userId: string,
+    userRole: UserRole,
+  ): Promise<{ message: string }> {
+    const course = await this.findById(courseId);
+    if (
+      userRole !== UserRole.ADMIN &&
+      userRole !== UserRole.SUPER_ADMIN &&
+      course.instructor.toString() !== userId
+    ) {
+      throw new ForbiddenException(
+        'You can only reorder lessons in your own courses',
+      );
+    }
+
+    // Validate lessons belong to the course
+    const lessons = await this.lessonModel
+      .find({ _id: { $in: lessonIds }, course: courseId })
+      .select('_id')
+      .exec();
+    const foundIds = new Set(lessons.map((l) => (l._id as any).toString()));
+    for (const id of lessonIds) {
+      if (!foundIds.has(id)) {
+        throw new BadRequestException('Invalid lesson IDs for this course');
+      }
+    }
+
+    // Apply new order (1-based)
+    const bulk = lessonIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order: index + 1 } },
+      },
+    }));
+    await (this.lessonModel as any).bulkWrite(bulk);
+    return { message: 'Lessons reordered' };
+  }
+
   async getStats(): Promise<any> {
     const totalCourses = await this.courseModel.countDocuments();
     const publishedCourses = await this.courseModel.countDocuments({
@@ -395,5 +478,151 @@ export class CoursesService {
       },
       { $sort: { count: -1 } },
     ]);
+  }
+
+  async publish(
+    id: string,
+    userId: string,
+    userRole: UserRole,
+  ): Promise<Course> {
+    const course = await this.findById(id);
+
+    if (
+      userRole !== UserRole.ADMIN &&
+      userRole !== UserRole.SUPER_ADMIN &&
+      course.instructor.toString() !== userId
+    ) {
+      throw new ForbiddenException('You can only publish your own courses');
+    }
+
+    if (course.status === CourseStatus.PUBLISHED) {
+      throw new BadRequestException('Course is already published');
+    }
+
+    const updated = await this.courseModel
+      .findByIdAndUpdate(
+        id,
+        {
+          status: CourseStatus.PUBLISHED,
+          isPublished: true,
+        },
+        { new: true },
+      )
+      .populate('instructor', 'firstName lastName email avatar')
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException('Course not found');
+    }
+
+    return updated;
+  }
+
+  async unpublish(
+    id: string,
+    userId: string,
+    userRole: UserRole,
+  ): Promise<Course> {
+    const course = await this.findById(id);
+
+    if (
+      userRole !== UserRole.ADMIN &&
+      userRole !== UserRole.SUPER_ADMIN &&
+      course.instructor.toString() !== userId
+    ) {
+      throw new ForbiddenException('You can only unpublish your own courses');
+    }
+
+    if (course.status !== CourseStatus.PUBLISHED) {
+      throw new BadRequestException('Course is not published');
+    }
+
+    const updated = await this.courseModel
+      .findByIdAndUpdate(
+        id,
+        {
+          status: CourseStatus.DRAFT,
+          isPublished: false,
+        },
+        { new: true },
+      )
+      .populate('instructor', 'firstName lastName email avatar')
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException('Course not found');
+    }
+
+    return updated;
+  }
+
+  async duplicate(id: string, userId: string): Promise<Course> {
+    const originalCourse = await this.findById(id);
+
+    // Check if user is instructor of original course or admin
+    if (originalCourse.instructor.toString() !== userId) {
+      throw new ForbiddenException('You can only duplicate your own courses');
+    }
+
+    // Create slug for duplicate
+    const baseSlug = originalCourse.slug;
+    let newSlug = `${baseSlug}-copy`;
+    let counter = 1;
+
+    // Ensure unique slug
+    while (await this.courseModel.findOne({ slug: newSlug })) {
+      newSlug = `${baseSlug}-copy-${counter}`;
+      counter++;
+    }
+
+    // Remove fields that shouldn't be duplicated
+    const courseData = originalCourse.toObject();
+    delete courseData._id;
+    delete courseData.createdAt;
+    delete courseData.updatedAt;
+    delete courseData.studentCount;
+    delete courseData.enrollmentCount;
+    delete courseData.rating;
+    delete courseData.reviewCount;
+    delete courseData.totalRatings;
+    delete courseData.totalRevenue;
+
+    // Create new course with modified data
+    const duplicatedCourse = new this.courseModel({
+      ...courseData,
+      title: `${originalCourse.title} (Copy)`,
+      slug: newSlug,
+      status: CourseStatus.DRAFT,
+      isPublished: false,
+      isFeatured: false,
+    });
+
+    const saved = await duplicatedCourse.save();
+
+    // Duplicate lessons if any
+    const lessons = await this.lessonModel.find({
+      course: originalCourse._id,
+    });
+
+    if (lessons.length > 0) {
+      const duplicatedLessons = lessons.map((lesson) => {
+        const { _id, createdAt, updatedAt, ...rest } = (lesson.toObject() as any);
+        return {
+          ...rest,
+          course: saved._id,
+        };
+      });
+
+      await this.lessonModel.insertMany(duplicatedLessons);
+    }
+
+    const final = await this.courseModel
+      .findById(saved._id)
+      .populate('instructor', 'firstName lastName email avatar')
+      .exec();
+    if (!final) {
+      throw new NotFoundException('Duplicated course not found');
+    }
+    return final;
   }
 }

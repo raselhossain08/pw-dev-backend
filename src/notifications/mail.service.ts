@@ -8,18 +8,21 @@ export class MailService {
   constructor(
     private mailerService: MailerService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
+  async sendVerificationEmail(email: string, token: string, code?: string): Promise<void> {
     const url = `${this.configService.get('FRONTEND_URL')}/activate-account?token=${token}`;
 
     await this.mailerService.sendMail({
       to: email,
       subject: 'Personal Wings - Email Verification',
+      text: `Verify your email by visiting: ${url}`,
       template: 'email-verification',
       context: {
-        url,
+        verificationUrl: url,
+        verificationCode: code,
         email,
+        supportEmail: this.configService.get('SUPPORT_EMAIL', 'support@personalwings.com'),
       },
     });
   }
@@ -122,6 +125,27 @@ export class MailService {
         message,
         data,
         timestamp: new Date().toISOString(),
+      },
+    });
+  }
+
+  async sendCertificateEmail(
+    user: User,
+    certificateId: string,
+    courseName: string,
+    certificateUrl: string,
+  ): Promise<void> {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: `🎓 Congratulations! Your ${courseName} Certificate`,
+      template: 'certificate',
+      context: {
+        name: `${user.firstName} ${user.lastName}`,
+        courseName,
+        certificateId,
+        certificateUrl,
+        year: new Date().getFullYear(),
+        supportEmail: this.configService.get('SUPPORT_EMAIL', 'support@personalwings.com'),
       },
     });
   }

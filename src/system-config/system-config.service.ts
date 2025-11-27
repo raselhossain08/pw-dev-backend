@@ -16,7 +16,7 @@ export class SystemConfigService implements OnModuleInit {
   constructor(
     @InjectModel(SystemConfig.name) private configModel: Model<SystemConfig>,
     private nestConfigService: NestConfigService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     // Initialize default configs on startup
@@ -80,21 +80,47 @@ export class SystemConfigService implements OnModuleInit {
   }
 
   async create(createConfigDto: CreateConfigDto): Promise<SystemConfig> {
-    const config = new this.configModel(createConfigDto);
-    const saved = await config.save();
+    try {
+      const saved = await this.configModel
+        .findOneAndUpdate(
+          { key: createConfigDto.key },
+          { $set: createConfigDto, $setOnInsert: { isActive: true } },
+          { new: true, upsert: true },
+        )
+        .exec();
 
-    // Update cache
-    this.configCache.set(saved.key, saved.value);
-
-    return saved;
+      this.configCache.set(saved.key, saved.value);
+      return saved;
+    } catch (error: any) {
+      if (error?.code === 11000) {
+        const existing = await this.configModel
+          .findOneAndUpdate(
+            { key: createConfigDto.key },
+            { $set: { ...createConfigDto, isActive: true } },
+            { new: true },
+          )
+          .exec();
+        if (existing) {
+          this.configCache.set(existing.key, existing.value);
+          return existing;
+        }
+      }
+      throw error;
+    }
   }
 
   async update(
     key: string,
     updateConfigDto: UpdateConfigDto,
   ): Promise<SystemConfig | null> {
+    const nextUpdate: UpdateConfigDto & { isActive?: boolean } = {
+      ...updateConfigDto,
+    };
+    if (updateConfigDto.value !== undefined && updateConfigDto.isActive === undefined) {
+      nextUpdate.isActive = true;
+    }
     const config = await this.configModel
-      .findOneAndUpdate({ key }, { $set: updateConfigDto }, { new: true })
+      .findOneAndUpdate({ key }, { $set: nextUpdate }, { new: true })
       .exec();
 
     if (config && updateConfigDto.value) {
@@ -695,6 +721,17 @@ export class SystemConfigService implements OnModuleInit {
         isRequired: false,
         placeholder: '{"categories":[],"items":[]}',
         metadata: { section: 'content' },
+      },
+      {
+        key: 'course_categories',
+        value: '[]',
+        category: ConfigCategory.GENERAL,
+        label: 'Course Categories',
+        description: 'List of categories used across courses',
+        isSecret: false,
+        isRequired: false,
+        placeholder: '["Aviation Theory","Flight Training"]',
+        metadata: { section: 'courses' },
       },
     ];
 

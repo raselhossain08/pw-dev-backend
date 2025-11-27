@@ -53,10 +53,10 @@ export class SanitizeInterceptor implements NestInterceptor {
     }
 
     if (obj !== null && typeof obj === 'object') {
-      const source = typeof (obj as any).toObject === 'function' ? (obj as any).toObject() : obj;
+      const source = typeof obj.toObject === 'function' ? obj.toObject() : obj;
       const sanitized: any = {};
       for (const key of Object.keys(source)) {
-        sanitized[key] = this.sanitizeObject((source as any)[key]);
+        sanitized[key] = this.sanitizeObject(source[key]);
       }
       return sanitized;
     }
@@ -86,7 +86,11 @@ export class SanitizeInterceptor implements NestInterceptor {
     return data;
   }
 
-  private removeSensitiveFields(obj: any, visited = new WeakSet<object>(), depth = 0): any {
+  private removeSensitiveFields(
+    obj: any,
+    visited = new WeakSet<object>(),
+    depth = 0,
+  ): any {
     if (!obj || typeof obj !== 'object') {
       return obj;
     }
@@ -100,7 +104,7 @@ export class SanitizeInterceptor implements NestInterceptor {
       return undefined;
     }
 
-    const source = typeof (obj as any).toObject === 'function' ? (obj as any).toObject() : obj;
+    const source = typeof obj.toObject === 'function' ? obj.toObject() : obj;
 
     const sensitiveFields = [
       'password',
@@ -113,7 +117,9 @@ export class SanitizeInterceptor implements NestInterceptor {
     ];
 
     if (Array.isArray(source)) {
-      return source.map((item) => this.removeSensitiveFields(item, visited, depth + 1));
+      return source.map((item) =>
+        this.removeSensitiveFields(item, visited, depth + 1),
+      );
     }
 
     const cleaned: any = {};
@@ -121,7 +127,7 @@ export class SanitizeInterceptor implements NestInterceptor {
       if (sensitiveFields.includes(key)) {
         continue;
       }
-      const value = (source as any)[key];
+      const value = source[key];
       if (value && typeof value === 'object') {
         cleaned[key] = this.removeSensitiveFields(value, visited, depth + 1);
       } else {

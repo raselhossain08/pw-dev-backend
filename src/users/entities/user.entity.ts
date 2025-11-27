@@ -161,5 +161,19 @@ UserSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-// Ensure virtual fields are serialized
-UserSchema.set('toJSON', { virtuals: true });
+// Ensure virtual fields are serialized and ObjectIds are converted to strings
+UserSchema.set('toJSON', {
+  virtuals: true,
+  transform: function (doc, ret: any) {
+    ret.id = ret._id.toString();
+    delete ret.__v;
+    delete ret.password;
+    return ret;
+  },
+});
+
+// Performance indexes for common queries
+UserSchema.index({ role: 1 });
+UserSchema.index({ status: 1 });
+UserSchema.index({ createdAt: -1 });
+UserSchema.index({ country: 1 });

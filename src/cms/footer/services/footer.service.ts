@@ -8,7 +8,7 @@ import { CreateFooterDto, UpdateFooterDto } from '../dto/footer.dto';
 export class FooterService {
   constructor(
     @InjectModel(Footer.name) private footerModel: Model<FooterDocument>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Footer[]> {
     return this.footerModel.find().lean();

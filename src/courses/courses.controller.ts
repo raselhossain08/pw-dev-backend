@@ -32,7 +32,7 @@ import { Public } from '../shared/decorators/public.decorator';
 @ApiTags('Courses')
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -131,6 +131,24 @@ export class CoursesController {
     );
   }
 
+  @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update course (PUT)' })
+  @ApiResponse({ status: 200, description: 'Course updated' })
+  async updatePut(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @Req() req,
+  ) {
+    return this.coursesService.update(
+      id,
+      updateCourseDto,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth('JWT-auth')
@@ -138,6 +156,36 @@ export class CoursesController {
   @ApiResponse({ status: 200, description: 'Course deleted' })
   async remove(@Param('id') id: string, @Req() req) {
     return this.coursesService.remove(id, req.user.id, req.user.role);
+  }
+
+  @Patch(':id/publish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Publish a course' })
+  @ApiResponse({ status: 200, description: 'Course published successfully' })
+  async publish(@Param('id') id: string, @Req() req) {
+    return this.coursesService.publish(id, req.user.id, req.user.role);
+  }
+
+  @Patch(':id/unpublish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Unpublish a course' })
+  @ApiResponse({ status: 200, description: 'Course unpublished successfully' })
+  async unpublish(@Param('id') id: string, @Req() req) {
+    return this.coursesService.unpublish(id, req.user.id, req.user.role);
+  }
+
+  @Post(':id/duplicate')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Duplicate a course' })
+  @ApiResponse({ status: 201, description: 'Course duplicated successfully' })
+  async duplicate(@Param('id') id: string, @Req() req) {
+    return this.coursesService.duplicate(id, req.user.id);
   }
 
   // Lesson endpoints
@@ -162,5 +210,57 @@ export class CoursesController {
   @ApiResponse({ status: 200, description: 'List of course lessons' })
   async getCourseLessons(@Param('id') id: string, @Req() req) {
     return this.coursesService.getCourseLessons(id, req.user.id, req.user.role);
+  }
+
+  @Patch('lessons/:lessonId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update a lesson' })
+  @ApiResponse({ status: 200, description: 'Lesson updated' })
+  async updateLesson(
+    @Param('lessonId') lessonId: string,
+    @Body() updateData: any,
+    @Req() req,
+  ) {
+    return this.coursesService.updateLesson(
+      lessonId,
+      updateData,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Delete('lessons/:lessonId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Delete a lesson' })
+  @ApiResponse({ status: 200, description: 'Lesson deleted' })
+  async deleteLesson(@Param('lessonId') lessonId: string, @Req() req) {
+    return this.coursesService.deleteLesson(
+      lessonId,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch(':id/lessons/reorder')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Reorder lessons in a course' })
+  @ApiResponse({ status: 200, description: 'Lessons reordered' })
+  async reorderLessons(
+    @Param('id') courseId: string,
+    @Body('lessonIds') lessonIds: string[],
+    @Req() req,
+  ) {
+    return this.coursesService.reorderLessons(
+      courseId,
+      lessonIds,
+      req.user.id,
+      req.user.role,
+    );
   }
 }

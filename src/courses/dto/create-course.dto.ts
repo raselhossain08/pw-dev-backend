@@ -69,7 +69,13 @@ export class CreateCourseDto {
   @ApiProperty({ example: 120, description: 'Duration in hours' })
   @IsNumber()
   @Min(1)
-  durationHours: number;
+  durationHours?: number;
+
+  @ApiProperty({ example: 120, description: 'Duration in hours (alias)' })
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  duration?: number;
 
   @ApiProperty({ example: 50, description: 'Maximum students allowed' })
   @IsNumber()
@@ -84,6 +90,15 @@ export class CreateCourseDto {
   @IsString({ each: true })
   @IsOptional()
   tags?: string[];
+
+  @ApiProperty({
+    example: ['Web Development', 'Data Science'],
+    description: 'Course categories',
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  categories?: string[];
 
   @ApiProperty({
     example: 'https://example.com/course-image.jpg',

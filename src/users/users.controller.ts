@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   Put,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -31,7 +32,7 @@ import { UserRole } from './entities/user.entity';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
@@ -93,6 +94,14 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User deleted' })
   async remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Delete('me')
+  @ApiOperation({ summary: 'Delete my account' })
+  @ApiResponse({ status: 200, description: 'Account deleted' })
+  async removeMe(@Req() req) {
+    const uid = req.user?.id || req.user?.userId;
+    return this.usersService.remove(uid);
   }
 
   @Put(':id/change-password')

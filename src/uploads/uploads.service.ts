@@ -268,6 +268,11 @@ export class UploadsService {
         'image/gif',
         'image/webp',
         'image/svg+xml',
+        'image/bmp',
+        'image/tiff',
+        'image/avif',
+        'image/heic',
+        'image/heif',
       ],
       [FileType.VIDEO]: [
         'video/mp4',

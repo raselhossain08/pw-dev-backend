@@ -17,6 +17,12 @@ export class Certificate extends Document {
 
   @Prop()
   certificateUrl?: string;
+
+  @Prop({ default: false })
+  emailSent?: boolean;
+
+  @Prop()
+  emailSentAt?: Date;
 }
 
 export const CertificateSchema = SchemaFactory.createForClass(Certificate);

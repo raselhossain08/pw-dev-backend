@@ -195,3 +195,12 @@ export class Course extends Document {
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);
+
+// Add proper JSON serialization
+CourseSchema.set('toJSON', {
+  transform: function (doc, ret: any) {
+    ret.id = ret._id.toString();
+    delete ret.__v;
+    return ret;
+  },
+});

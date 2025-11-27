@@ -89,6 +89,15 @@ export class CreateUserDto {
   bio?: string;
 
   @ApiProperty({
+    example: 'https://res.cloudinary.com/demo/image/upload/sample.svg',
+    description: 'Avatar image URL',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
+  @ApiProperty({
     example: ['ATP', 'CFI'],
     description: 'Certifications',
     required: false,
