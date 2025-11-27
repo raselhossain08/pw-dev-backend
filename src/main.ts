@@ -167,7 +167,10 @@ async function bootstrap() {
   const systemConfigService = app
     .select(SystemConfigModule)
     .get(SystemConfigService, { strict: true });
-  (app as any).get(
+
+  const expressApp = app.getHttpAdapter().getInstance();
+
+  expressApp.get(
     `/${apiPrefix}/public/config/nav-menu`,
     async (req: any, res: any) => {
       try {
@@ -179,7 +182,8 @@ async function bootstrap() {
       }
     },
   );
-  (app as any).get(
+
+  expressApp.get(
     `/${apiPrefix}/public/config/header`,
     async (req: any, res: any) => {
       try {
@@ -226,7 +230,8 @@ async function bootstrap() {
       }
     },
   );
-  (app as any).get(
+
+  expressApp.get(
     `/${apiPrefix}/public/content/faqs`,
     async (req: any, res: any) => {
       try {
@@ -234,7 +239,11 @@ async function bootstrap() {
         const data = typeof faqs === 'string' ? JSON.parse(faqs) : faqs || {};
         res.json({ success: true, message: 'OK', data });
       } catch (e) {
-        res.json({ success: true, message: 'OK', data: { categories: [], items: [] } });
+        res.json({
+          success: true,
+          message: 'OK',
+          data: { categories: [], items: [] },
+        });
       }
     },
   );

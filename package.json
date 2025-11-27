@@ -19,7 +19,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node -r tsconfig-paths/register src/scripts/seed-database.ts",
-    "seed:header": "ts-node -r tsconfig-paths/register src/scripts/seed-header-navigation.ts"
+    "seed:header": "ts-node -r tsconfig-paths/register src/scripts/seed-header-cms.ts",
+    "seed:footer": "ts-node -r tsconfig-paths/register src/cms/footer/scripts/seed-footer.ts",
+    "test:footer": "ts-node -r tsconfig-paths/register src/cms/footer/scripts/test-footer.ts",
+    "create-admin": "ts-node -r tsconfig-paths/register src/scripts/create-admin.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

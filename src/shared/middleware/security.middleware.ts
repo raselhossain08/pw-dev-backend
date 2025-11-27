@@ -27,7 +27,21 @@ export class SecurityMiddleware implements NestMiddleware {
     const clientIp = this.getClientIP(req);
 
     try {
-      // 1. Check if IP is blocked
+      const nodeEnv = process.env.NODE_ENV || 'development';
+      const isDevLocal =
+        nodeEnv === 'development' && (clientIp === '::1' || clientIp === '127.0.0.1');
+      const isDocsOrFavicon = req.path?.startsWith('/api/docs') || req.path === '/favicon.ico';
+      const isPublicPath = req.path?.startsWith('/api/public/');
+      const isCmsActiveGet =
+        req.method === 'GET' && /^\/api\/cms\/[^/]+\/active$/.test(req.path || '');
+
+      if (isDocsOrFavicon || isPublicPath || isCmsActiveGet || isDevLocal) {
+        this.addSecurityHeaders(res);
+        const requestSignature = this.generateRequestSignature(req);
+        (req as any).securitySignature = requestSignature;
+        return next();
+      }
+
       if (this.blockedIPs.has(clientIp)) {
         throw new HttpException(
           'Access denied. Your IP has been blocked due to suspicious activity.',
@@ -35,43 +49,23 @@ export class SecurityMiddleware implements NestMiddleware {
         );
       }
 
-      // 2. Rate limiting per IP
       this.enforceRateLimit(clientIp);
 
-      if (req.path?.startsWith('/api/docs') || req.path === '/favicon.ico') {
-        this.addSecurityHeaders(res);
-        const requestSignature = this.generateRequestSignature(req);
-        (req as any).securitySignature = requestSignature;
-        return next();
-      }
-
-      // 3. Validate request headers
       this.validateHeaders(req);
-
-      // 4. Check for malicious payloads
       this.scanForThreats(req, clientIp);
-
-      // 5. Validate Content-Type
       this.validateContentType(req);
 
-      // 6. Add security headers to response
       this.addSecurityHeaders(res);
-
-      // 7. Generate request signature for audit
       const requestSignature = this.generateRequestSignature(req);
       (req as any).securitySignature = requestSignature;
 
       next();
     } catch (error) {
-      // Log security violation
       console.error(
         `[SECURITY ALERT] IP: ${clientIp}, Path: ${req.path}`,
-        error.message,
+        (error as any)?.message,
       );
-
-      // Block IP after multiple violations
       this.handleSecurityViolation(clientIp);
-
       throw error;
     }
   }

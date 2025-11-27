@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -44,7 +44,7 @@ import { SecurityLog, SecurityLogSchema } from './entities/security-log.entity';
       { name: LoginAttempt.name, schema: LoginAttemptSchema },
       { name: SecurityLog.name, schema: SecurityLogSchema },
     ]),
-    UsersModule,
+    forwardRef(() => UsersModule),
     NotificationsModule,
   ],
   controllers: [AuthController],

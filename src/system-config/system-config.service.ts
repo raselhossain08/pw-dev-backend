@@ -16,7 +16,7 @@ export class SystemConfigService implements OnModuleInit {
   constructor(
     @InjectModel(SystemConfig.name) private configModel: Model<SystemConfig>,
     private nestConfigService: NestConfigService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     // Initialize default configs on startup

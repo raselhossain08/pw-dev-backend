@@ -41,6 +41,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SupportModule } from './support/support.module';
 import { AiBotModule } from './ai-bot/ai-bot.module';
 import { SystemConfigModule } from './system-config/system-config.module';
+import { CmsModule } from './cms/cms.module';
 
 // Security Module
 import { SecurityModule } from './shared/security.module';
@@ -167,6 +168,9 @@ import { AiBotGateway } from './ai-bot/ai-bot.gateway';
     SupportModule,
     AiBotModule,
     SystemConfigModule,
+
+    // CMS Module (Header, Footer, etc.)
+    CmsModule,
   ],
   providers: [
     // Background tasks
@@ -179,4 +183,4 @@ import { AiBotGateway } from './ai-bot/ai-bot.gateway';
     AiBotGateway,
   ],
 })
-export class AppModule { }
+export class AppModule {}

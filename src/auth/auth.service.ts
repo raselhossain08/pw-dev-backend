@@ -26,7 +26,7 @@ export class AuthService {
     private mailService: MailService,
     @InjectModel(EmailVerification.name)
     private emailVerificationModel: Model<EmailVerification>,
-  ) { }
+  ) {}
 
   async register(registerDto: RegisterDto) {
     // Check if user already exists
