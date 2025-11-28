@@ -19,93 +19,12 @@ async function bootstrap() {
         alt: 'Personal Wings Logo',
       },
       cart: {
-        itemCount: 4,
         href: '/cart',
-        items: [
-          {
-            id: 1,
-            title: 'Private Pilot License (PPL) Course',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 299,
-            quantity: 1,
-            instructor: 'John Smith',
-          },
-          {
-            id: 2,
-            title: 'Instrument Rating Training',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 449,
-            quantity: 1,
-            instructor: 'Sarah Johnson',
-          },
-          {
-            id: 3,
-            title: 'Commercial Pilot Training',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 699,
-            quantity: 1,
-            instructor: 'Mike Davis',
-          },
-          {
-            id: 4,
-            title: 'Multi-Engine Rating',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 549,
-            quantity: 1,
-            instructor: 'Emily Wilson',
-          },
-        ],
       },
       search: {
         placeholder: 'What are you looking for?',
         buttonText: 'Search',
-        resultsPerPage: 4,
-        mockResults: [
-          {
-            id: 1,
-            title: 'New Jet Pilot Transition Course',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 2500,
-            oldPrice: 3000,
-            rating: 5,
-            reviewCount: 24,
-          },
-          {
-            id: 2,
-            title: 'Turboprop Aircraft Training',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 3200,
-            oldPrice: 4000,
-            rating: 5,
-            reviewCount: 18,
-          },
-          {
-            id: 3,
-            title: 'Light Jet Type Rating',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 4500,
-            oldPrice: 5500,
-            rating: 5,
-            reviewCount: 12,
-          },
-          {
-            id: 4,
-            title: 'Multi-Engine Rating',
-            image:
-              'https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=400',
-            price: 2800,
-            oldPrice: 3400,
-            rating: 5,
-            reviewCount: 21,
-          },
-        ],
+        resultsPerPage: 10,
       },
       navigation: {
         menuItems: [
@@ -211,13 +130,10 @@ async function bootstrap() {
       },
       userMenu: {
         profile: {
-          name: 'John Doe',
-          email: 'john.doe@personalwings.com',
-          avatar: '/assets/images/team/avatar.jpg',
-          avatarFallback: 'JD',
+          avatarFallback: 'U',
           profileLink: '/dashboard/profile',
         },
-        isLoggedIn: true,
+        isLoggedIn: false,
         menuItems: [
           {
             icon: 'Home',
