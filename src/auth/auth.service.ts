@@ -26,7 +26,7 @@ export class AuthService {
     private mailService: MailService,
     @InjectModel(EmailVerification.name)
     private emailVerificationModel: Model<EmailVerification>,
-  ) { }
+  ) {}
 
   async register(registerDto: RegisterDto) {
     // Check if user already exists
@@ -68,7 +68,11 @@ export class AuthService {
 
     const activationLink = `${this.configService.get('FRONTEND_URL')}/activate-account?token=${verificationToken}`;
     try {
-      await this.mailService.sendVerificationEmail(user.email, verificationToken, code);
+      await this.mailService.sendVerificationEmail(
+        user.email,
+        verificationToken,
+        code,
+      );
     } catch (e) {
       console.error('Email send failed:', (e as Error)?.message);
     }
@@ -208,7 +212,10 @@ export class AuthService {
     if (!code || code.length !== 6) {
       throw new BadRequestException('Invalid verification code');
     }
-    const record = await this.emailVerificationModel.findOne({ token: code, type: 'otp' });
+    const record = await this.emailVerificationModel.findOne({
+      token: code,
+      type: 'otp',
+    });
     if (!record || record.isUsed || record.expiresAt.getTime() < Date.now()) {
       throw new BadRequestException('Invalid or expired verification code');
     }

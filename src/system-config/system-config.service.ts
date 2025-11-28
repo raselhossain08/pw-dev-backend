@@ -16,7 +16,7 @@ export class SystemConfigService implements OnModuleInit {
   constructor(
     @InjectModel(SystemConfig.name) private configModel: Model<SystemConfig>,
     private nestConfigService: NestConfigService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     // Initialize default configs on startup
@@ -116,7 +116,10 @@ export class SystemConfigService implements OnModuleInit {
     const nextUpdate: UpdateConfigDto & { isActive?: boolean } = {
       ...updateConfigDto,
     };
-    if (updateConfigDto.value !== undefined && updateConfigDto.isActive === undefined) {
+    if (
+      updateConfigDto.value !== undefined &&
+      updateConfigDto.isActive === undefined
+    ) {
       nextUpdate.isActive = true;
     }
     const config = await this.configModel

@@ -30,8 +30,7 @@ export class SecurityMiddleware implements NestMiddleware {
       const nodeEnv = process.env.NODE_ENV || 'development';
       const isDevLocal =
         nodeEnv === 'development' &&
-        (
-          clientIp === '127.0.0.1' ||
+        (clientIp === '127.0.0.1' ||
           clientIp === '::1' ||
           clientIp === '::ffff:127.0.0.1' ||
           clientIp.startsWith('192.168.') ||
@@ -51,8 +50,7 @@ export class SecurityMiddleware implements NestMiddleware {
           clientIp.startsWith('172.28.') ||
           clientIp.startsWith('172.29.') ||
           clientIp.startsWith('172.30.') ||
-          clientIp.startsWith('172.31.')
-        );
+          clientIp.startsWith('172.31.'));
       const isDocsOrFavicon =
         req.path?.startsWith('/api/docs') || req.path === '/favicon.ico';
       const isPublicPath = req.path?.startsWith('/api/public/');

@@ -21,7 +21,7 @@ export class HeaderNavigationService {
     @InjectModel(HeaderNavigation.name)
     private headerNavigationModel: Model<HeaderNavigationDocument>,
     private cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   async create(
     createDto: CreateHeaderNavigationDto,
@@ -179,6 +179,21 @@ export class HeaderNavigationService {
         { 'userMenu.profile.avatar': image.url },
         { new: true },
       )
+      .exec();
+    if (!result) throw new BadRequestException('Header navigation not found');
+    return result.toJSON();
+  }
+
+  async uploadSeoImage(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<HeaderNavigation> {
+    await this.findOne(id);
+
+    const image = await this.cloudinaryService.uploadImage(file, 'header/seo');
+
+    const result = await this.headerNavigationModel
+      .findByIdAndUpdate(id, { 'seo.ogImage': image.url }, { new: true })
       .exec();
     if (!result) throw new BadRequestException('Header navigation not found');
     return result.toJSON();

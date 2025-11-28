@@ -199,4 +199,4 @@ import { AiBotGateway } from './ai-bot/ai-bot.gateway';
     AiBotGateway,
   ],
 })
-export class AppModule { }
+export class AppModule {}

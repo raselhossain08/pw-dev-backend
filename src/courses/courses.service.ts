@@ -19,13 +19,16 @@ export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
-  ) { }
+  ) {}
 
   async create(
     createCourseDto: CreateCourseDto,
     instructorId: string,
   ): Promise<Course> {
-    console.log('Creating course with DTO:', JSON.stringify(createCourseDto, null, 2));
+    console.log(
+      'Creating course with DTO:',
+      JSON.stringify(createCourseDto, null, 2),
+    );
     console.log('Thumbnail URL:', createCourseDto.thumbnail);
 
     const existingCourse = await this.courseModel.findOne({
@@ -35,7 +38,8 @@ export class CoursesService {
       throw new ConflictException('Course with this slug already exists');
     }
 
-    const duration = (createCourseDto as any).duration ?? createCourseDto.durationHours;
+    const duration =
+      (createCourseDto as any).duration ?? createCourseDto.durationHours;
     const course = new this.courseModel({
       ...createCourseDto,
       duration,
@@ -95,11 +99,13 @@ export class CoursesService {
       ...course,
       id: course._id.toString(),
       _id: course._id.toString(),
-      instructor: course.instructor ? {
-        ...course.instructor,
-        id: course.instructor._id.toString(),
-        _id: course.instructor._id.toString(),
-      } : null,
+      instructor: course.instructor
+        ? {
+            ...course.instructor,
+            id: course.instructor._id.toString(),
+            _id: course.instructor._id.toString(),
+          }
+        : null,
     }));
 
     return { courses: serializedCourses, total };
@@ -160,7 +166,10 @@ export class CoursesService {
     userId: string,
     userRole: UserRole,
   ): Promise<Course> {
-    console.log('Updating course with DTO:', JSON.stringify(updateCourseDto, null, 2));
+    console.log(
+      'Updating course with DTO:',
+      JSON.stringify(updateCourseDto, null, 2),
+    );
     console.log('Thumbnail URL:', updateCourseDto.thumbnail);
 
     const course = await this.findById(id);
@@ -615,7 +624,7 @@ export class CoursesService {
 
     if (lessons.length > 0) {
       const duplicatedLessons = lessons.map((lesson) => {
-        const { _id, createdAt, updatedAt, ...rest } = (lesson.toObject() as any);
+        const { _id, createdAt, updatedAt, ...rest } = lesson.toObject() as any;
         return {
           ...rest,
           course: saved._id,

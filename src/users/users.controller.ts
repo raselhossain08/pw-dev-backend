@@ -32,7 +32,7 @@ import { UserRole } from './entities/user.entity';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)

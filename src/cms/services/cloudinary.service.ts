@@ -16,18 +16,35 @@ export class CloudinaryService {
     file: Express.Multer.File,
     folder: string = 'cms',
   ): Promise<{ url: string; publicId: string }> {
+    // Check if file is SVG
+    const isSvg = file.mimetype === 'image/svg+xml' || file.originalname.toLowerCase().endsWith('.svg');
+
     return new Promise((resolve, reject) => {
+      const uploadOptions: any = {
+        folder: `personal-wings/${folder}`,
+        resource_type: isSvg ? 'raw' : 'auto',
+      };
+
+      // For SVG files, preserve the original filename with extension
+      if (isSvg) {
+        // Extract filename without extension and append timestamp for uniqueness
+        const baseFilename = file.originalname.replace(/\.[^/.]+$/, '');
+        const timestamp = Date.now();
+        uploadOptions.public_id = `${baseFilename}-${timestamp}.svg`;
+        uploadOptions.use_filename = false;
+        uploadOptions.unique_filename = false;
+      } else {
+        // Only apply transformations to non-SVG images
+        uploadOptions.transformation = [
+          { width: 1200, height: 630, crop: 'limit' },
+          { quality: 'auto:good' },
+          { fetch_format: 'auto' },
+        ];
+      }
+
       cloudinary.uploader
         .upload_stream(
-          {
-            folder: `personal-wings/${folder}`,
-            resource_type: 'auto',
-            transformation: [
-              { width: 1200, height: 630, crop: 'limit' },
-              { quality: 'auto:good' },
-              { fetch_format: 'auto' },
-            ],
-          },
+          uploadOptions,
           (error, result) => {
             if (error) return reject(error);
             if (!result) return reject(new Error('Upload failed'));

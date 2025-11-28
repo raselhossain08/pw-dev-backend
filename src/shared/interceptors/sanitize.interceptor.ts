@@ -44,6 +44,20 @@ export class SanitizeInterceptor implements NestInterceptor {
   }
 
   private sanitizeObject(obj: any): any {
+    // Convert Mongo ObjectId to string
+    if (obj && typeof obj === 'object') {
+      const isObjectId =
+        obj._bsontype === 'ObjectID' || typeof obj.toHexString === 'function';
+      if (isObjectId) {
+        try {
+          return obj.toHexString();
+        } catch {
+          // Fallback to toString
+          return String(obj);
+        }
+      }
+    }
+
     if (typeof obj === 'string') {
       return this.sanitizeString(obj);
     }
@@ -104,6 +118,15 @@ export class SanitizeInterceptor implements NestInterceptor {
       return undefined;
     }
 
+    // Convert ObjectId to string early
+    if (obj._bsontype === 'ObjectID' || typeof obj.toHexString === 'function') {
+      try {
+        return obj.toHexString();
+      } catch {
+        return String(obj);
+      }
+    }
+
     const source = typeof obj.toObject === 'function' ? obj.toObject() : obj;
 
     const sensitiveFields = [
@@ -129,7 +152,19 @@ export class SanitizeInterceptor implements NestInterceptor {
       }
       const value = source[key];
       if (value && typeof value === 'object') {
-        cleaned[key] = this.removeSensitiveFields(value, visited, depth + 1);
+        // Convert nested ObjectId to string
+        if (
+          value._bsontype === 'ObjectID' ||
+          typeof value.toHexString === 'function'
+        ) {
+          try {
+            cleaned[key] = value.toHexString();
+          } catch {
+            cleaned[key] = String(value);
+          }
+        } else {
+          cleaned[key] = this.removeSensitiveFields(value, visited, depth + 1);
+        }
       } else {
         cleaned[key] = value;
       }

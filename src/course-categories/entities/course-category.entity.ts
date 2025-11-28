@@ -13,6 +13,7 @@ export class CourseCategory extends Document {
   isActive: boolean;
 }
 
-export const CourseCategorySchema = SchemaFactory.createForClass(CourseCategory);
+export const CourseCategorySchema =
+  SchemaFactory.createForClass(CourseCategory);
 CourseCategorySchema.index({ name: 1 }, { unique: true });
 CourseCategorySchema.index({ slug: 1 }, { unique: true });

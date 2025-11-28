@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CourseCategory } from './entities/course-category.entity';
@@ -19,7 +23,11 @@ export class CourseCategoriesService {
   ) {}
 
   async listActiveNames(): Promise<string[]> {
-    const rows = await this.categoryModel.find({ isActive: true }).sort({ name: 1 }).lean().exec();
+    const rows = await this.categoryModel
+      .find({ isActive: true })
+      .sort({ name: 1 })
+      .lean()
+      .exec();
     return rows.map((r) => r.name);
   }
 
@@ -27,13 +35,19 @@ export class CourseCategoriesService {
     const clean = name?.trim();
     if (!clean) throw new BadRequestException('Category name is required');
     const slug = slugify(clean);
-    const exists = await this.categoryModel.findOne({ $or: [{ name: clean }, { slug }] }).lean().exec();
+    const exists = await this.categoryModel
+      .findOne({ $or: [{ name: clean }, { slug }] })
+      .lean()
+      .exec();
     if (exists) return exists; // idempotent
     return this.categoryModel.create({ name: clean, slug, isActive: true });
   }
 
   async removeBySlug(slug: string) {
-    const res = await this.categoryModel.findOneAndDelete({ slug }).lean().exec();
+    const res = await this.categoryModel
+      .findOneAndDelete({ slug })
+      .lean()
+      .exec();
     if (!res) throw new NotFoundException('Category not found');
     return { success: true };
   }

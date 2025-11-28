@@ -25,7 +25,7 @@ import { ConfigCategory } from './entities/system-config.entity';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
 export class SystemConfigController {
-  constructor(private readonly systemConfigService: SystemConfigService) { }
+  constructor(private readonly systemConfigService: SystemConfigService) {}
 
   @Get()
   findAll(@Query('category') category?: ConfigCategory) {

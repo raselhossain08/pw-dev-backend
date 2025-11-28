@@ -32,7 +32,7 @@ import { Public } from '../shared/decorators/public.decorator';
 @ApiTags('Courses')
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) { }
+  constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -8,9 +8,13 @@ export class MailService {
   constructor(
     private mailerService: MailerService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
-  async sendVerificationEmail(email: string, token: string, code?: string): Promise<void> {
+  async sendVerificationEmail(
+    email: string,
+    token: string,
+    code?: string,
+  ): Promise<void> {
     const url = `${this.configService.get('FRONTEND_URL')}/activate-account?token=${token}`;
 
     await this.mailerService.sendMail({
@@ -22,7 +26,10 @@ export class MailService {
         verificationUrl: url,
         verificationCode: code,
         email,
-        supportEmail: this.configService.get('SUPPORT_EMAIL', 'support@personalwings.com'),
+        supportEmail: this.configService.get(
+          'SUPPORT_EMAIL',
+          'support@personalwings.com',
+        ),
       },
     });
   }
@@ -145,7 +152,10 @@ export class MailService {
         certificateId,
         certificateUrl,
         year: new Date().getFullYear(),
-        supportEmail: this.configService.get('SUPPORT_EMAIL', 'support@personalwings.com'),
+        supportEmail: this.configService.get(
+          'SUPPORT_EMAIL',
+          'support@personalwings.com',
+        ),
       },
     });
   }

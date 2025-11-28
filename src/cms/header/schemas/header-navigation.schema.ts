@@ -16,60 +16,9 @@ class Logo {
 }
 
 @Schema()
-class CartItem {
-  @Prop({ required: true })
-  id: number;
-
-  @Prop({ required: true })
-  title: string;
-
-  @Prop({ required: true })
-  image: string;
-
-  @Prop({ required: true })
-  price: number;
-
-  @Prop({ required: true, default: 1 })
-  quantity: number;
-
-  @Prop({ required: true })
-  instructor: string;
-}
-
-@Schema()
 class Cart {
-  @Prop({ required: true, default: 0 })
-  itemCount: number;
-
   @Prop({ required: true, default: '/cart' })
   href: string;
-
-  @Prop({ type: [CartItem], default: [] })
-  items: CartItem[];
-}
-
-@Schema()
-class SearchResult {
-  @Prop({ required: true })
-  id: number;
-
-  @Prop({ required: true })
-  title: string;
-
-  @Prop({ required: true })
-  image: string;
-
-  @Prop({ required: true })
-  price: number;
-
-  @Prop()
-  oldPrice?: number;
-
-  @Prop({ required: true, default: 5 })
-  rating: number;
-
-  @Prop({ required: true, default: 0 })
-  reviewCount: number;
 }
 
 @Schema()
@@ -80,11 +29,8 @@ class SearchConfig {
   @Prop({ required: true, default: 'Search' })
   buttonText: string;
 
-  @Prop({ required: true, default: 4 })
+  @Prop({ required: true, default: 10 })
   resultsPerPage: number;
-
-  @Prop({ type: [SearchResult], default: [] })
-  mockResults: SearchResult[];
 }
 
 @Schema()
@@ -167,19 +113,10 @@ class Navigation {
 
 @Schema()
 class UserProfile {
-  @Prop({ required: true })
-  name: string;
-
-  @Prop({ required: true })
-  email: string;
-
-  @Prop({ required: true })
-  avatar: string;
-
-  @Prop({ required: true })
+  @Prop({ required: true, default: 'U' })
   avatarFallback: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: '/profile' })
   profileLink: string;
 }
 
@@ -240,6 +177,39 @@ class CallToAction {
   variant: string;
 }
 
+@Schema()
+class SeoConfig {
+  @Prop({ required: true, default: 'Personal Wings - Learn. Grow. Succeed.' })
+  title: string;
+
+  @Prop({ required: true, default: 'Empower your learning journey with Personal Wings' })
+  description: string;
+
+  @Prop({ type: [String], default: ['education', 'online courses', 'learning platform'] })
+  keywords: string[];
+
+  @Prop({ default: '' })
+  ogImage: string;
+
+  @Prop({ default: '' })
+  ogUrl: string;
+
+  @Prop({ default: 'website' })
+  ogType: string;
+
+  @Prop({ default: '' })
+  twitterCard: string;
+
+  @Prop({ default: '' })
+  twitterSite: string;
+
+  @Prop({ default: '' })
+  canonicalUrl: string;
+
+  @Prop({ default: 'en_US' })
+  locale: string;
+}
+
 @Schema({ timestamps: true })
 export class HeaderNavigation {
   @Prop({ type: Logo, required: true })
@@ -259,6 +229,9 @@ export class HeaderNavigation {
 
   @Prop({ type: CallToAction, required: true })
   cta: CallToAction;
+
+  @Prop({ type: SeoConfig, required: true })
+  seo: SeoConfig;
 
   @Prop({ required: true, default: true })
   isActive: boolean;

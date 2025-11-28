@@ -1,5 +1,5 @@
 import { IsString, IsArray, IsOptional, IsBoolean } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreateSocialStatDto {
   @ApiProperty({ example: 'location' })
@@ -97,4 +97,4 @@ export class CreateTopBarDto {
   isActive?: boolean;
 }
 
-export class UpdateTopBarDto extends CreateTopBarDto {}
+export class UpdateTopBarDto extends PartialType(CreateTopBarDto) {}

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Certificate } from './entities/additional.entity';
@@ -11,9 +16,10 @@ import * as crypto from 'crypto';
 export class CertificatesService {
   constructor(
     @InjectModel(Certificate.name) private certificateModel: Model<Certificate>,
-    @InjectModel(CertificateTemplate.name) private templateModel: Model<CertificateTemplate>,
+    @InjectModel(CertificateTemplate.name)
+    private templateModel: Model<CertificateTemplate>,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async generateCertificate(
     userId: string,
@@ -118,7 +124,10 @@ export class CertificatesService {
       });
 
       certificate = await certificate.save();
-      certificate = await certificate.populate('student', 'firstName lastName email');
+      certificate = await certificate.populate(
+        'student',
+        'firstName lastName email',
+      );
       certificate = await certificate.populate('course', 'title');
     }
 
@@ -136,12 +145,15 @@ export class CertificatesService {
     const course = certificate.course;
 
     if (!student || !course) {
-      throw new BadRequestException('Certificate must have student and course populated');
+      throw new BadRequestException(
+        'Certificate must have student and course populated',
+      );
     }
 
-    const studentName = typeof student === 'object'
-      ? `${student.firstName} ${student.lastName}`
-      : 'Student';
+    const studentName =
+      typeof student === 'object'
+        ? `${student.firstName} ${student.lastName}`
+        : 'Student';
     const studentEmail = typeof student === 'object' ? student.email : '';
     const courseName = typeof course === 'object' ? course.title : 'Course';
 
@@ -187,10 +199,17 @@ export class CertificatesService {
 
     for (const userId of userIds) {
       try {
-        const cert = await this.adminGenerateCertificate(userId, courseId, sendEmail);
+        const cert = await this.adminGenerateCertificate(
+          userId,
+          courseId,
+          sendEmail,
+        );
         certificates.push(cert);
       } catch (error) {
-        console.error(`Failed to generate certificate for user ${userId}:`, error);
+        console.error(
+          `Failed to generate certificate for user ${userId}:`,
+          error,
+        );
       }
     }
 

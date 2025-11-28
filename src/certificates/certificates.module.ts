@@ -3,7 +3,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CertificatesService } from './certificates.service';
 import { CertificatesController } from './certificates.controller';
 import { Certificate, CertificateSchema } from './entities/additional.entity';
-import { CertificateTemplate, CertificateTemplateSchema } from './entities/certificate-template.entity';
+import {
+  CertificateTemplate,
+  CertificateTemplateSchema,
+} from './entities/certificate-template.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
@@ -18,4 +21,4 @@ import { NotificationsModule } from '../notifications/notifications.module';
   providers: [CertificatesService],
   exports: [CertificatesService],
 })
-export class CertificatesModule { }
+export class CertificatesModule {}

@@ -30,7 +30,7 @@ import {
 export class HeaderNavigationController {
   constructor(
     private readonly headerNavigationService: HeaderNavigationService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create new header navigation' })
@@ -160,5 +160,20 @@ export class HeaderNavigationController {
     @UploadedFiles() files: { avatar: Express.Multer.File[] },
   ) {
     return this.headerNavigationService.uploadUserAvatar(id, files.avatar[0]);
+  }
+
+  @Post(':id/seo-image')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'ogImage', maxCount: 1 }]))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload SEO OG image' })
+  @ApiResponse({
+    status: 200,
+    description: 'SEO image uploaded successfully',
+  })
+  async uploadSeoImage(
+    @Param('id') id: string,
+    @UploadedFiles() files: { ogImage: Express.Multer.File[] },
+  ) {
+    return this.headerNavigationService.uploadSeoImage(id, files.ogImage[0]);
   }
 }

@@ -28,7 +28,7 @@ import { UserRole } from '../users/entities/user.entity';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -128,7 +128,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Resend email verification using token' })
   @ApiResponse({ status: 200, description: 'Verification email resent' })
-  async resendVerification(@Body('token') token?: string, @Query('token') queryToken?: string) {
-    return this.authService.resendVerification(String(token || queryToken || ''));
+  async resendVerification(
+    @Body('token') token?: string,
+    @Query('token') queryToken?: string,
+  ) {
+    return this.authService.resendVerification(
+      String(token || queryToken || ''),
+    );
   }
 }

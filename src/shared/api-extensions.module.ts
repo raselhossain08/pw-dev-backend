@@ -35,4 +35,4 @@ import {
   providers: [LMSConnectionsService],
   exports: [LMSConnectionsService],
 })
-export class ApiExtensionsModule { }
+export class ApiExtensionsModule {}

@@ -1,5 +1,5 @@
 import { IsString, IsNumber, IsOptional, IsBoolean } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreateLogoDto {
   @ApiProperty({ example: '/logo.svg' })
@@ -13,32 +13,6 @@ export class CreateLogoDto {
   @ApiProperty({ example: 'Personal Wings Logo' })
   @IsString()
   alt: string;
-}
-
-export class CreateCartItemDto {
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  id: number;
-
-  @ApiProperty({ example: 'Private Pilot License (PPL) Course' })
-  @IsString()
-  title: string;
-
-  @ApiProperty()
-  @IsString()
-  image: string;
-
-  @ApiProperty({ example: 299 })
-  @IsNumber()
-  price: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  quantity: number;
-
-  @ApiProperty({ example: 'John Smith' })
-  @IsString()
-  instructor: string;
 }
 
 export class CreateNavigationLinkDto {
@@ -132,23 +106,11 @@ export class CreateMenuItemDto {
 }
 
 export class CreateUserProfileDto {
-  @ApiProperty({ example: 'John Doe' })
-  @IsString()
-  name: string;
-
-  @ApiProperty({ example: 'john.doe@personalwings.com' })
-  @IsString()
-  email: string;
-
-  @ApiProperty()
-  @IsString()
-  avatar: string;
-
-  @ApiProperty({ example: 'JD' })
+  @ApiProperty({ example: 'U', description: 'Fallback text for avatar when user has no profile picture' })
   @IsString()
   avatarFallback: string;
 
-  @ApiProperty({ example: '/dashboard/profile' })
+  @ApiProperty({ example: '/profile', description: 'URL for user profile page' })
   @IsString()
   profileLink: string;
 }
@@ -177,30 +139,26 @@ export class CreateHeaderNavigationDto {
 
   @ApiProperty({
     example: {
-      itemCount: 4,
       href: '/cart',
-      items: [],
     },
+    description: 'Cart configuration - only page URL (cart items are dynamic)',
   })
   cart: {
-    itemCount: number;
     href: string;
-    items: CreateCartItemDto[];
   };
 
   @ApiProperty({
     example: {
       placeholder: 'What are you looking for?',
       buttonText: 'Search',
-      resultsPerPage: 4,
-      mockResults: [],
+      resultsPerPage: 10,
     },
+    description: 'Search UI configuration - results are fetched from database',
   })
   search: {
     placeholder: string;
     buttonText: string;
     resultsPerPage: number;
-    mockResults: any[];
   };
 
   @ApiProperty({
@@ -240,4 +198,6 @@ export class CreateHeaderNavigationDto {
   isActive?: boolean;
 }
 
-export class UpdateHeaderNavigationDto extends CreateHeaderNavigationDto {}
+export class UpdateHeaderNavigationDto extends PartialType(
+  CreateHeaderNavigationDto,
+) { }

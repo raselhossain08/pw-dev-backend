@@ -27,7 +27,7 @@ import { CreateTemplateDto, UpdateTemplateDto } from './dto/template.dto';
 @ApiTags('Certificates')
 @Controller('certificates')
 export class CertificatesController {
-  constructor(private readonly certificatesService: CertificatesService) { }
+  constructor(private readonly certificatesService: CertificatesService) {}
 
   @Post('generate/:courseId')
   @UseGuards(JwtAuthGuard)
@@ -63,8 +63,14 @@ export class CertificatesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Create certificate template' })
   @ApiResponse({ status: 201, description: 'Template created' })
-  async createTemplate(@Body() createTemplateDto: CreateTemplateDto, @Req() req) {
-    return this.certificatesService.createTemplate(createTemplateDto, req.user.id);
+  async createTemplate(
+    @Body() createTemplateDto: CreateTemplateDto,
+    @Req() req,
+  ) {
+    return this.certificatesService.createTemplate(
+      createTemplateDto,
+      req.user.id,
+    );
   }
 
   @Put('templates/:id')
@@ -77,7 +83,11 @@ export class CertificatesController {
     @Body() updateTemplateDto: UpdateTemplateDto,
     @Req() req,
   ) {
-    return this.certificatesService.updateTemplate(id, updateTemplateDto, req.user.id);
+    return this.certificatesService.updateTemplate(
+      id,
+      updateTemplateDto,
+      req.user.id,
+    );
   }
 
   @Delete('templates/:id')
@@ -142,7 +152,9 @@ export class CertificatesController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Admin: Send certificate via email' })
   @ApiResponse({ status: 200, description: 'Certificate email sent' })
-  async adminSendCertificateEmail(@Param('certificateId') certificateId: string) {
+  async adminSendCertificateEmail(
+    @Param('certificateId') certificateId: string,
+  ) {
     await this.certificatesService.adminSendCertificateEmail(certificateId);
     return { message: 'Certificate email sent successfully' };
   }
