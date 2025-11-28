@@ -4,7 +4,10 @@ import { BulkOperationsController } from './controllers/bulk-operations.controll
 import { ReportsController } from './controllers/reports.controller';
 import { ProgressController } from './controllers/progress.controller';
 import { InstructorController } from './controllers/instructor.controller';
+import { LMSConnectionsController } from './controllers/lms-connections.controller';
+import { LMSConnectionsService } from './services/lms-connections.service';
 import { Course, CourseSchema } from '../courses/entities/course.entity';
+import { Lesson, LessonSchema } from '../courses/entities/lesson.entity';
 import { User, UserSchema } from '../users/entities/user.entity';
 import { Order, OrderSchema } from '../orders/entities/order.entity';
 import {
@@ -16,6 +19,7 @@ import {
   imports: [
     MongooseModule.forFeature([
       { name: Course.name, schema: CourseSchema },
+      { name: Lesson.name, schema: LessonSchema },
       { name: User.name, schema: UserSchema },
       { name: Order.name, schema: OrderSchema },
       { name: Enrollment.name, schema: EnrollmentSchema },
@@ -26,6 +30,9 @@ import {
     ReportsController,
     ProgressController,
     InstructorController,
+    LMSConnectionsController,
   ],
+  providers: [LMSConnectionsService],
+  exports: [LMSConnectionsService],
 })
-export class ApiExtensionsModule {}
+export class ApiExtensionsModule { }

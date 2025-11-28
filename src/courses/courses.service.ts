@@ -25,6 +25,9 @@ export class CoursesService {
     createCourseDto: CreateCourseDto,
     instructorId: string,
   ): Promise<Course> {
+    console.log('Creating course with DTO:', JSON.stringify(createCourseDto, null, 2));
+    console.log('Thumbnail URL:', createCourseDto.thumbnail);
+
     const existingCourse = await this.courseModel.findOne({
       slug: createCourseDto.slug,
     });
@@ -39,7 +42,9 @@ export class CoursesService {
       instructor: new Types.ObjectId(instructorId),
     });
 
-    return await course.save();
+    const savedCourse = await course.save();
+    console.log('Saved course thumbnail:', savedCourse.thumbnail);
+    return savedCourse;
   }
 
   async findAll(
@@ -155,6 +160,9 @@ export class CoursesService {
     userId: string,
     userRole: UserRole,
   ): Promise<Course> {
+    console.log('Updating course with DTO:', JSON.stringify(updateCourseDto, null, 2));
+    console.log('Thumbnail URL:', updateCourseDto.thumbnail);
+
     const course = await this.findById(id);
 
     if (
@@ -183,6 +191,7 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
+    console.log('Updated course thumbnail:', updatedCourse.thumbnail);
     return updatedCourse;
   }
 
