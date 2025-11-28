@@ -106,11 +106,17 @@ export class CreateMenuItemDto {
 }
 
 export class CreateUserProfileDto {
-  @ApiProperty({ example: 'U', description: 'Fallback text for avatar when user has no profile picture' })
+  @ApiProperty({
+    example: 'U',
+    description: 'Fallback text for avatar when user has no profile picture',
+  })
   @IsString()
   avatarFallback: string;
 
-  @ApiProperty({ example: '/profile', description: 'URL for user profile page' })
+  @ApiProperty({
+    example: '/profile',
+    description: 'URL for user profile page',
+  })
   @IsString()
   profileLink: string;
 }
@@ -200,4 +206,4 @@ export class CreateHeaderNavigationDto {
 
 export class UpdateHeaderNavigationDto extends PartialType(
   CreateHeaderNavigationDto,
-) { }
+) {}

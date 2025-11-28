@@ -182,10 +182,16 @@ class SeoConfig {
   @Prop({ required: true, default: 'Personal Wings - Learn. Grow. Succeed.' })
   title: string;
 
-  @Prop({ required: true, default: 'Empower your learning journey with Personal Wings' })
+  @Prop({
+    required: true,
+    default: 'Empower your learning journey with Personal Wings',
+  })
   description: string;
 
-  @Prop({ type: [String], default: ['education', 'online courses', 'learning platform'] })
+  @Prop({
+    type: [String],
+    default: ['education', 'online courses', 'learning platform'],
+  })
   keywords: string[];
 
   @Prop({ default: '' })

@@ -30,7 +30,7 @@ import {
 export class HeaderNavigationController {
   constructor(
     private readonly headerNavigationService: HeaderNavigationService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new header navigation' })

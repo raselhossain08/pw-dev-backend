@@ -31,7 +31,7 @@ import { UserRole } from '../users/entities/user.entity';
 
 @Controller('ai-bot')
 export class AiBotController {
-  constructor(private readonly aiBotService: AiBotService) { }
+  constructor(private readonly aiBotService: AiBotService) {}
 
   // Customer endpoints
   @Post('chat')

@@ -17,7 +17,9 @@ export class CloudinaryService {
     folder: string = 'cms',
   ): Promise<{ url: string; publicId: string }> {
     // Check if file is SVG
-    const isSvg = file.mimetype === 'image/svg+xml' || file.originalname.toLowerCase().endsWith('.svg');
+    const isSvg =
+      file.mimetype === 'image/svg+xml' ||
+      file.originalname.toLowerCase().endsWith('.svg');
 
     return new Promise((resolve, reject) => {
       const uploadOptions: any = {
@@ -43,17 +45,14 @@ export class CloudinaryService {
       }
 
       cloudinary.uploader
-        .upload_stream(
-          uploadOptions,
-          (error, result) => {
-            if (error) return reject(error);
-            if (!result) return reject(new Error('Upload failed'));
-            resolve({
-              url: result.secure_url,
-              publicId: result.public_id,
-            });
-          },
-        )
+        .upload_stream(uploadOptions, (error, result) => {
+          if (error) return reject(error);
+          if (!result) return reject(new Error('Upload failed'));
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+          });
+        })
         .end(file.buffer);
     });
   }

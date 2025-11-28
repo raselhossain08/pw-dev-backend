@@ -21,6 +21,9 @@
     "seed": "ts-node -r tsconfig-paths/register src/scripts/seed-database.ts",
     "seed:header": "ts-node -r tsconfig-paths/register src/scripts/seed-header-cms.ts",
     "seed:footer": "ts-node -r tsconfig-paths/register src/cms/footer/scripts/seed-footer.ts",
+    "seed:banners": "ts-node -r tsconfig-paths/register src/scripts/seed-banners.ts",
+    "seed:banners:clear": "ts-node -r tsconfig-paths/register src/scripts/seed-banners.ts clear",
+    "seed:about": "ts-node -r tsconfig-paths/register src/scripts/seed-about-section.ts",
     "test:footer": "ts-node -r tsconfig-paths/register src/cms/footer/scripts/test-footer.ts",
     "create-admin": "ts-node -r tsconfig-paths/register src/scripts/create-admin.ts"
   },

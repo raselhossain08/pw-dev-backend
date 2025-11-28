@@ -1,5 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import {
+  ValidationPipe,
+  VersioningType,
+  VERSION_NEUTRAL,
+} from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -98,6 +102,12 @@ async function bootstrap() {
   // Global prefix
   const apiPrefix = configService.get('API_PREFIX', 'api');
   app.setGlobalPrefix(apiPrefix);
+
+  // Enable versioning for API
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: VERSION_NEUTRAL,
+  });
 
   // Get port for Swagger configuration
   const port = configService.get('PORT', 5000);
