@@ -93,8 +93,11 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false, // Allow properties with decorators
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
       validationError: { target: false },
     }),
   );

@@ -80,6 +80,15 @@ export class CreateUserDto {
   city?: string;
 
   @ApiProperty({
+    example: 'john-doe',
+    description: 'URL-friendly slug for instructor profiles',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
+  @ApiProperty({
     example: 'Pilot with 10+ years experience',
     description: 'Bio',
     required: false,

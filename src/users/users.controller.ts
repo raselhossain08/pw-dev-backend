@@ -29,11 +29,20 @@ import { UserRole } from './entities/user.entity';
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth('JWT-auth')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
+  // Public endpoint - no auth required
+  @Get('instructor/:slug')
+  @ApiOperation({ summary: 'Get instructor profile by slug with courses (Public)' })
+  @ApiResponse({ status: 200, description: 'Instructor profile with courses' })
+  async getInstructorBySlug(@Param('slug') slug: string) {
+    return this.usersService.getInstructorBySlug(slug);
+  }
+
+  // Protected endpoints below
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('JWT-auth')
   @Post()
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Create a new user' })
@@ -42,6 +51,8 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('JWT-auth')
   @Get()
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get all users with pagination' })

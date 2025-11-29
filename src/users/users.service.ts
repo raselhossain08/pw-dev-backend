@@ -13,7 +13,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check if user already exists
@@ -204,6 +204,89 @@ export class UsersService {
       .select('-password -refreshToken -passwordResetToken')
       .lean()
       .exec();
+  }
+
+  async getInstructorBySlug(slug: string): Promise<any> {
+    // Generate slug from email (e.g., instructor@personalwings.com -> instructor)
+    // or from firstName-lastName format
+    const instructor = await this.userModel
+      .findOne({
+        role: UserRole.INSTRUCTOR,
+        status: UserStatus.ACTIVE,
+        $or: [
+          { email: { $regex: `^${slug}@`, $options: 'i' } },
+          {
+            $expr: {
+              $regexMatch: {
+                input: {
+                  $concat: [
+                    { $toLower: '$firstName' },
+                    '-',
+                    { $toLower: '$lastName' },
+                  ],
+                },
+                regex: slug.toLowerCase(),
+              },
+            },
+          },
+        ],
+      })
+      .select('-password -refreshToken -passwordResetToken')
+      .lean()
+      .exec();
+
+    if (!instructor) {
+      throw new NotFoundException('Instructor not found');
+    }
+
+    // Import Course model dynamically to avoid circular dependency
+    const { Model } = await import('mongoose');
+    const courseModel = this.userModel.db.model('Course');
+
+    // Get instructor's courses
+    const courses = await courseModel
+      .find({
+        instructor: instructor._id,
+        status: 'published',
+      })
+      .select(
+        'title slug description thumbnail price originalPrice rating reviewCount studentCount duration level categories',
+      )
+      .lean()
+      .exec();
+
+    // Calculate instructor stats
+    const totalStudents = courses.reduce(
+      (sum, course) => sum + (course.studentCount || 0),
+      0,
+    );
+    const totalReviews = courses.reduce(
+      (sum, course) => sum + (course.reviewCount || 0),
+      0,
+    );
+    const avgRating =
+      courses.length > 0
+        ? courses.reduce((sum, course) => sum + (course.rating || 0), 0) /
+        courses.length
+        : 0;
+
+    // Format lessons as duration string
+    const formattedCourses = courses.map((course) => ({
+      ...course,
+      lessons: Math.ceil((course.duration || 0) / 0.5), // Estimate lessons from duration
+      duration: `${course.duration || 0} hours`,
+    }));
+
+    return {
+      ...instructor,
+      courses: formattedCourses,
+      stats: {
+        totalCourses: courses.length,
+        totalStudents,
+        totalReviews,
+        rating: parseFloat(avgRating.toFixed(1)),
+      },
+    };
   }
 
   async getGeographicDistribution(): Promise<any> {

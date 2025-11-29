@@ -83,6 +83,14 @@ export class User extends Document {
   city: string;
 
   @ApiProperty({
+    example: 'john-doe',
+    description: 'URL-friendly slug for instructor profiles',
+    required: false,
+  })
+  @Prop({ unique: true, sparse: true })
+  slug: string;
+
+  @ApiProperty({
     example: 'Pilot with 10+ years experience',
     description: 'Bio',
     required: false,

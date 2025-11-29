@@ -34,4 +34,4 @@ import { Coupon, CouponSchema } from '../coupons/entities/coupon.entity';
   providers: [AdminService],
   exports: [AdminService],
 })
-export class AdminModule {}
+export class AdminModule { }

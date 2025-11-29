@@ -24,6 +24,11 @@
     "seed:banners": "ts-node -r tsconfig-paths/register src/scripts/seed-banners.ts",
     "seed:banners:clear": "ts-node -r tsconfig-paths/register src/scripts/seed-banners.ts clear",
     "seed:about": "ts-node -r tsconfig-paths/register src/scripts/seed-about-section.ts",
+    "seed:events": "ts-node -r tsconfig-paths/register src/scripts/seed-events.ts",
+    "seed:testimonials": "ts-node -r tsconfig-paths/register src/scripts/seed-testimonials.ts",
+    "seed:blog": "ts-node -r tsconfig-paths/register src/cms/home/blog/scripts/seed-blog.ts",
+    "seed:courses": "ts-node -r tsconfig-paths/register src/scripts/seed-courses.ts",
+    "seed:products": "ts-node -r tsconfig-paths/register src/scripts/seed-products.ts",
     "test:footer": "ts-node -r tsconfig-paths/register src/cms/footer/scripts/test-footer.ts",
     "create-admin": "ts-node -r tsconfig-paths/register src/scripts/create-admin.ts"
   },

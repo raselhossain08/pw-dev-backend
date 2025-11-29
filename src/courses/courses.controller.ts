@@ -32,7 +32,7 @@ import { Public } from '../shared/decorators/public.decorator';
 @ApiTags('Courses')
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -97,20 +97,20 @@ export class CoursesController {
     return this.coursesService.getStats();
   }
 
-  @Get(':id')
-  @Public()
-  @ApiOperation({ summary: 'Get course by ID' })
-  @ApiResponse({ status: 200, description: 'Course details' })
-  async findOne(@Param('id') id: string) {
-    return this.coursesService.findById(id);
-  }
-
   @Get('slug/:slug')
   @Public()
   @ApiOperation({ summary: 'Get course by slug' })
   @ApiResponse({ status: 200, description: 'Course details' })
   async findBySlug(@Param('slug') slug: string) {
     return this.coursesService.findBySlug(slug);
+  }
+
+  @Get(':id')
+  @Public()
+  @ApiOperation({ summary: 'Get course by ID' })
+  @ApiResponse({ status: 200, description: 'Course details' })
+  async findOne(@Param('id') id: string) {
+    return this.coursesService.findById(id);
   }
 
   @Patch(':id')

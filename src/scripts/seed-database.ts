@@ -52,14 +52,51 @@ async function seed() {
 
       await usersService.create({
         email: instructorEmail,
-        firstName: 'John',
-        lastName: 'Instructor',
+        firstName: 'Rich',
+        lastName: 'Pickett',
         password: hashedPassword,
         role: UserRole.INSTRUCTOR,
         status: UserStatus.ACTIVE,
+        slug: 'captain-rich-pickett',
+        bio: 'Captain Rich Pickett is a highly experienced aviation professional with over 40 years of flying experience. As a Chief Flight Instructor, he specializes in high-performance aircraft training, jet transition programs, and advanced avionics instruction. Rich is passionate about aviation safety and has trained over 1,000 pilots throughout his distinguished career.',
+        certifications: [
+          'ATP Certificate',
+          'CFI/CFII/MEI',
+          'Citation Type Rating',
+          'Eclipse Jet Type Rating',
+          'High Performance Endorsement',
+          'Complex Aircraft Endorsement',
+        ],
+        flightHours: 5000,
+        phone: '+1 (619) 555-0123',
+        country: 'United States',
+        state: 'California',
+        city: 'San Diego',
       });
 
       logger.log(`✅ Sample instructor created: ${instructorEmail}`);
+    } else {
+      // Update existing instructor with slug and additional data
+      await usersService.update((existingInstructor as any)._id.toString(), {
+        firstName: 'Rich',
+        lastName: 'Pickett',
+        slug: 'captain-rich-pickett',
+        bio: 'Captain Rich Pickett is a highly experienced aviation professional with over 40 years of flying experience. As a Chief Flight Instructor, he specializes in high-performance aircraft training, jet transition programs, and advanced avionics instruction. Rich is passionate about aviation safety and has trained over 1,000 pilots throughout his distinguished career.',
+        certifications: [
+          'ATP Certificate',
+          'CFI/CFII/MEI',
+          'Citation Type Rating',
+          'Eclipse Jet Type Rating',
+          'High Performance Endorsement',
+          'Complex Aircraft Endorsement',
+        ],
+        flightHours: 5000,
+        phone: '+1 (619) 555-0123',
+        country: 'United States',
+        state: 'California',
+        city: 'San Diego',
+      });
+      logger.log(`✅ Instructor profile updated: ${instructorEmail}`);
     }
 
     // Create sample student

@@ -66,6 +66,16 @@ export class CreateCourseDto {
   @Min(0)
   price: number;
 
+  @ApiProperty({
+    example: 1599.99,
+    description: 'Original price for discount display',
+    required: false,
+  })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @IsOptional()
+  originalPrice?: number;
+
   @ApiProperty({ example: 120, description: 'Duration in hours' })
   @IsNumber()
   @Min(1)

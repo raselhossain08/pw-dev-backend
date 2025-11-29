@@ -13,7 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class GamificationController {
-  constructor(private readonly gamificationService: GamificationService) {}
+  constructor(private readonly gamificationService: GamificationService) { }
 
   @Get('my-points')
   @ApiOperation({ summary: 'Get user points and achievements' })
